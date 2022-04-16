@@ -6,8 +6,16 @@ var getRepoName = function() {
   // grab repo name from url query string | ?repo=.../...
   var queryString = document.location.search;
   var repoName = queryString.split("=")[1];
-  getRepoIssues(repoName);
-  repoNameEl.textContent = repoName;
+
+  if (repoName) {
+    // display repo name on page
+    repoNameEl.textContent = repoName;
+    // run getRepoIssues() to retrieve repo & its issues
+    getRepoIssues(repoName);
+  } else {
+    // no repo given, redirects to homepage
+    document.location.replace("./index.html");
+  }
 };
 
 
@@ -28,8 +36,8 @@ var getRepoIssues = function(repo) {
         }
       });
     } else {
-      console.log(response);
-      alert("There was a problem with your request!");
+      // if not, redirects to index.html
+      document.location.replace("./index.html");
     }
   });
 };

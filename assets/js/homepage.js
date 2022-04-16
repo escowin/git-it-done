@@ -1,14 +1,15 @@
-// built-in fetch API
 var getUserRepos = function(user) {
-    // format github api url
+    // format the github api url
     var apiUrl = "https://api.github.com/users/" + user + "/repos";
-
-    // make url request
+  
+    // make a get request to url
     fetch(apiUrl).then(function(response) {
-        response.json().then(function(data) {
-            console.log(data);
-        });
+      console.log(response);
+      response.json().then(function(data) {
+        console.log(data);
+      });
     });
-};
-
-getUserRepos();
+  };
+  
+  getUserRepos("escowin");
+  

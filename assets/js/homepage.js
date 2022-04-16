@@ -108,7 +108,13 @@ var getFeaturedRepos = function(language) {
 
 var buttonClickHandler = function(event) {
   var language = event.target.getAttribute("data-language");
-  console.log(language);
+
+  if (language) {
+    getFeaturedRepos(language);
+
+    // clear old content
+    repoContainerEl.textContent = "";
+  }
 };
 
 // add event listeners to forms

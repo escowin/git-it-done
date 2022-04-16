@@ -1,4 +1,5 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitWarningEl = document.querySelector("#limit-warning");
 
 var getRepoIssues = function(repo) {
     var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
@@ -8,6 +9,11 @@ var getRepoIssues = function(repo) {
             response.json().then(function(data) {
                 // pass response data to dom()
                 displayIssues(data);
+
+                // check for api paginated issues
+                if (response.headers.get("Link")) {
+                    displayWarning(repo);
+                }
             });
         } else {
             alert("problem with request");
@@ -53,4 +59,19 @@ var displayIssues = function(issues) {
     }
 };
 
-getRepoIssues("escowin/git-it-done");
+var displayWarning = function(repo) {
+    // add text | <div id="limit-warning">...</>
+    limitWarningEl.textContent = "see more than these 30 issues, visit ";
+
+    // add | <a href="..." target="...">...</>
+    var linkEl = document.createElement("a")
+    linkEl.textContent = "github.com to see more";
+    linkEl.setAttribute("href", "https://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    // append | <div...><a...>...</>
+    limitWarningEl.appendChild(linkEl);
+
+};
+
+getRepoIssues("facebook/react");

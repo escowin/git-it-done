@@ -1,13 +1,97 @@
+var userFormEl = document.querySelector("#user-form");
+var nameInputEl = document.querySelector("#username");
+var repoContainerEl = document.querySelector("#repos-container");
+var repoSearchTerm = document.querySelector("#repo-search-term");
+
+// logic.display data to page
+var displayRepos = function(repos, searchTerm) {
+  // checks if api returns any repos
+  if (repos.length === 0) {
+    repoContainerEl.textContent = "no repos found";
+    return;
+  }
+
+  // clear old content
+  repoContainerEl.textContent = "";
+  // display value from formSubmitHandler(username) > getUserRepos(user)
+  repoSearchTerm.textContent = searchTerm;
+
+  // json formatted repos & username
+  console.log(repos);
+  console.log(searchTerm);
+
+  // loop over repos
+  for (var i = 0; i < repos.length; i++) {
+    // format repo name
+    var repoName = `${repos[i].owner.login}/${repos[i].name}`;
+
+    // create a container for each repo
+    var repoEl = document.createElement("div");
+    repoEl.classList = "list-item flex-row justify-space-between align-center";
+
+    // create span element to hold repo name
+    var titleEl = document.createElement("span");
+    titleEl.textContent = repoName;
+
+    // append | <div .repoEl><span>repoName</span></div>
+    repoEl.appendChild(titleEl);
+
+    // create status element
+    var statusEl = document.createElement("span");
+    statusEl.classList = "flex-row align-center";
+
+    // check if current repo has issues or not
+    if (repos[i].open_issues_count > 0) {
+      statusEl.innerHTML = `<i class='fas fa-times status-icon icon-danger'></i>${repos[i].open_issues_count} issue(s)`;
+    } else {
+      statusEl.innerHTML = `<i class='fas fa-check-square status-icon icon-success'></i>`;
+    }
+
+    // append to container
+    repoEl.appendChild(statusEl);
+    
+    // append | <repoContainer><repoEl/></repoContainer>
+    repoContainerEl.appendChild(repoEl);
+  }
+};
+
+// logic.using the user-submitted username
+var formSubmitHandler = function(event) {
+  event.preventDefault();
+  
+  // removes whitespace from user input
+  var username = nameInputEl.value.trim();
+
+  if (username) {
+    // pass username as an argument into getUserRepos()
+    getUserRepos(username);
+    // clears form input field
+    nameInputEl.value = "";
+  } else {
+    console.log("enter github username");
+  }
+};
+
+// logic.get api data
 var getUserRepos = function (user) {
   // formatting api url
   var apiUrl = `https://api.github.com/users/${user}/repos`;
 
   // api fetch request
   fetch(apiUrl).then(function(response) {
-    response.json().then(function(data) {
-      console.log(data);
-    });
+    if (response.ok) {
+      response.json().then(function(data) {
+        displayRepos(data, user);
+      });
+    } else {
+      console.log("error: github user not found");
+    }
+  })
+  .catch(function(error) {
+    // method format: fetch().then().catch()
+    // connectivity issues
+    console.log("unable to connect to github");
   });
 };
 
-getUserRepos("escowin");
+userFormEl.addEventListener("submit", formSubmitHandler);

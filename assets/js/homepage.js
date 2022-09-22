@@ -1,6 +1,13 @@
-var getUserRepos = function () {
-  // console.log('function was called');
-  fetch('https://api.github.com/users/octocat/repos');
+var getUserRepos = function (user) {
+  // formatting api url
+  var apiUrl = `https://api.github.com/users/${user}/repos`;
+
+  // api fetch request
+  fetch(apiUrl).then(function(response) {
+    response.json().then(function(data) {
+      console.log(data);
+    });
+  });
 };
 
-getUserRepos();
+getUserRepos("escowin");

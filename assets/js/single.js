@@ -3,26 +3,44 @@ var limitWarningEl = document.querySelector("#limit-warning");
 var repoNameEl = document.querySelector("#repo-name");
 
 var getRepoName = function() {
-  // fnding the repo name from the query string
+  // finds the repo name from the query string
   var queryString = document.location.search;
-  // splitting the query string into an array & getting its second element
+  // splits the query string into an array & gets the second element in the array
   var repoName = queryString.split("=")[1];
 
-  // passing the variable into the function to fetch related issues from the api issues endpoint
-  getRepoIssues(repoName);
+  // checks for valid values
+  if(repoName) {
+    // displays repo name on page
+    repoNameEl.textContent = repoName;
 
-  repoNameEl.textContent = repoName;
+    // passes variable into the function to fetch related issues from the api issues endpoint
+    getRepoIssues(repoName);
+  } else {
+    // no repo? redirects user to homepage
+    document.location.replace("./index.html");
+  }
 };
 
-var displayWarning = function(repo) {
-  limitWarningEl.textContent = "want to see full list of issues? visit ";
-  var linkEl = document.createElement("a");
-  linkEl.textContent = "github.com to see more";
-  linkEl.setAttribute("href", `https://github.com/${repo}/issues`);
-  linkEl.setAttribute("target", "_blank");
+var getRepoIssues = function(repo) {
+  var apiUrl = `https://api.github.com/repos/${repo}/issues?direction=asc`;
 
-  // append to warning container
-  limitWarningEl.appendChild(linkEl);
+  fetch(apiUrl).then(function(response) {
+    // successful request
+    if (response.ok) {
+      response.json().then(function(data) {
+        // pass response data to dom function
+        displayIssues(data);
+
+        // check if api has pagination
+        if (response.headers.get("Link")) {
+          displayWarning(repo);
+        }
+      });
+    } else {
+      // failed request sends user to homepage
+      document.location.replace("./index.html");
+    }
+  });
 };
 
 var displayIssues = function(issues) {
@@ -64,26 +82,15 @@ var displayIssues = function(issues) {
   }
 };
 
-var getRepoIssues = function(repo) {
-  var apiUrl = `https://api.github.com/repos/${repo}/issues?direction=asc`;
+var displayWarning = function(repo) {
+  limitWarningEl.textContent = "want to see full list of issues? visit ";
+  var linkEl = document.createElement("a");
+  linkEl.textContent = "github.com to see more";
+  linkEl.setAttribute("href", `https://github.com/${repo}/issues`);
+  linkEl.setAttribute("target", "_blank");
 
-  fetch(apiUrl).then(function(response) {
-    // successful request
-    if (response.ok) {
-      response.json().then(function(data) {
-        // pass response data to dom function
-        displayIssues(data);
-
-        // check if api has pagination
-        if (response.headers.get("Link")) {
-          displayWarning(repo);
-        }
-      });
-    } else {
-      console.log("problem with request.")
-    }
-  });
+  // append to warning container
+  limitWarningEl.appendChild(linkEl);
 };
 
-getRepoIssues();
 getRepoName();

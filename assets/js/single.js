@@ -1,5 +1,18 @@
 var issueContainerEl = document.querySelector("#issues-container");
 var limitWarningEl = document.querySelector("#limit-warning");
+var repoNameEl = document.querySelector("#repo-name");
+
+var getRepoName = function() {
+  // fnding the repo name from the query string
+  var queryString = document.location.search;
+  // splitting the query string into an array & getting its second element
+  var repoName = queryString.split("=")[1];
+
+  // passing the variable into the function to fetch related issues from the api issues endpoint
+  getRepoIssues(repoName);
+
+  repoNameEl.textContent = repoName;
+};
 
 var displayWarning = function(repo) {
   limitWarningEl.textContent = "want to see full list of issues? visit ";
@@ -73,3 +86,4 @@ var getRepoIssues = function(repo) {
 };
 
 getRepoIssues();
+getRepoName();
